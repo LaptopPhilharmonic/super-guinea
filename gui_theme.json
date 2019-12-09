@@ -1,0 +1,22 @@
+{
+    "label":
+    {
+        "colours":
+        {
+            "normal_text": "#FF0000,#FFFF00,#FFFFFF,90",
+            "dark_bg": "#FFFFFF00",
+            "text_shadow": "#505050"
+        },
+        "font":
+        {
+            "name": "fira_code",
+            "size": "10",
+            "bold": "0",
+            "italic": "0"
+        },
+        "misc":
+        {
+            "text_shadow": "1"
+        }
+    }
+}

@@ -4,12 +4,15 @@ import ctypes
 import sys
 from ctypes import windll
 
+from pygame_gui.elements.ui_label import UILabel
+from pygame_gui.ui_manager import UIManager
 from pygame.locals import *
 import json
 from obs import *
 from Level import *
 import re
 import math
+
 
 class Plytform:
 
@@ -31,8 +34,8 @@ class Plytform:
     images = {}
     view_x = 0
     view_y = 0
-    player_ob = False
-    focus_ob = 0
+    player_ob = None
+    focus_ob = None
     level_width = False
     level_height = False
     current_level_set = []
@@ -82,6 +85,17 @@ class Plytform:
         pygame.mouse.set_visible(settings.cursor_visible)
 
         pygame.event.set_allowed([QUIT, KEYDOWN, KEYUP])
+
+        # GUI
+        self.ui_manager = UIManager((self.resolution_width, self.resolution_height),
+                                               "gui_theme.json")
+        counter_pos_rect = pygame.Rect(0, 0, 100, 25)
+        counter_pos_rect.center = (56, 36)
+        self.nugget_counter = UILabel(counter_pos_rect, "", self.ui_manager)
+
+        timer_pos_rect = pygame.Rect(0, 0, 100, 25)
+        timer_pos_rect.center = (self.resolution_width - 100, 36)
+        self.timer_label = UILabel(timer_pos_rect, "", self.ui_manager)
 
     def start(self):
         self.game_running = True
@@ -528,14 +542,17 @@ class Plytform:
         # GUI stuff
 
         # Normal game GUI
-        if self.display_mode == "game" and self.player_ob:
+        if self.display_mode == "game" and self.player_ob is not None:
 
-            nugget_count_text = self.font.render(str(self.player_ob.nuggets) + "/" + str(self.current_level.current_nuggets), True, (255, 255, 255))
-            nugget_count_rect = nugget_count_text.get_rect()
-            nugget_count_rect.center = (56, 36)
+            nugget_count_str = str(self.player_ob.nuggets) + "/" + str(self.current_level.current_nuggets)
+            self.nugget_counter.set_text(nugget_count_str)
+            # nugget_count_text = self.font.render(
+            #     nugget_count_str, True, (255, 255, 255))
+            # nugget_count_rect = nugget_count_text.get_rect()
+            # nugget_count_rect.center = (56, 36)
+            # render_text(nugget_count_text, nugget_count_rect)
 
             render_image(self.images["nugget-icon.png"], 32, 32)
-            render_text(nugget_count_text, nugget_count_rect)
 
             if self.player_ob.dandelions > 0:
                 render_image(self.images["dandelion-icon-got.png"], 96, 24)
@@ -556,10 +573,15 @@ class Plytform:
             total_seconds = math.floor(total_millis / 1000) % 60
             total_minutes = math.floor(total_millis / 60000)
 
-            timer_text = self.font.render(str(total_minutes).zfill(2) + ":" + str(total_seconds).zfill(2) + ":" + str(total_cents).zfill(2), True, (255, 255, 255))
-            timer_text_rect = timer_text.get_rect()
-            timer_text_rect.center = (self.resolution_width - 100, 36)
-            render_text(timer_text, timer_text_rect)
+            timer_string = (str(total_minutes).zfill(2) + ":" + str(total_seconds).zfill(2)
+                            + ":" + str(total_cents).zfill(2))
+            self.timer_label.set_text(timer_string)
+            # timer_text = self.font.render(
+            #     timer_string, True,
+            #     (255, 255, 255))
+            # timer_text_rect = timer_text.get_rect()
+            # timer_text_rect.center = (self.resolution_width - 100, 36)
+            # render_text(timer_text, timer_text_rect)
 
         # Victory GUI
         if self.display_mode == "victory":
@@ -601,6 +623,8 @@ class Plytform:
         # Things that just have to happen
 
         self.surface.blits(to_blit)
+        self.ui_manager.update((1.0/max(1.0, self.fps)))
+        self.ui_manager.draw_ui(self.surface)
         pygame.transform.scale(self.surface, (self.screen_width, self.screen_height), self.final_surface)
         pygame.display.update(screen_rectangle)
 
