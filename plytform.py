@@ -13,6 +13,7 @@ from Level import *
 import re
 import math
 
+
 class Plytform:
 
     screen_width = 0
