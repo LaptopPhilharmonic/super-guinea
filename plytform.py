@@ -34,8 +34,8 @@ class Plytform:
     images = {}
     view_x = 0
     view_y = 0
-    player_ob = False
-    focus_ob = 0
+    player_ob = None
+    focus_ob = None
     level_width = False
     level_height = False
     current_level_set = []
@@ -542,7 +542,7 @@ class Plytform:
         # GUI stuff
 
         # Normal game GUI
-        if self.display_mode == "game" and self.player_ob:
+        if self.display_mode == "game" and self.player_ob is not None:
 
             nugget_count_str = str(self.player_ob.nuggets) + "/" + str(self.current_level.current_nuggets)
             self.nugget_counter.set_text(nugget_count_str)
